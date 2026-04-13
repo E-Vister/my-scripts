@@ -1,0 +1,137 @@
+.page {
+  min-height: 100vh;
+  background: #030712;
+  color: #f3f4f6;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 56rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.textarea {
+  width: 100%;
+  height: 16rem;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+  color: #f3f4f6;
+  resize: none;
+
+  &:focus {
+    outline: none;
+    border-color: #6b7280;
+  }
+}
+
+.button {
+  background: linear-gradient(to right, #0c3698 0%, #6d28d9 51%, #0c3698 100%);
+  background-size: 200% auto;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-position 1s ease;
+
+  &:hover {
+    background-position: right center;
+  }
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .resultHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .metaToggle {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      cursor: pointer;
+      user-select: none;
+      color: #9ca3af;
+
+      &:hover{
+        color: #bfc9d9;
+      }
+
+      .meta {
+        font-size: 0.875rem;
+      }
+
+      .metaButton {
+        font-size: 0.8em;
+      }
+    }
+
+    .copyButton {
+      font-size: 0.875rem;
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 0.375rem 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.5s ease;
+
+      &:hover {
+        background: #374151;
+      }
+    }
+  }
+
+  .breakdownWrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+
+    &.open {
+      grid-template-rows: 1fr;
+    }
+  }
+
+  .breakdown {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .breakdownRow {
+      display: flex;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+  }
+
+  .json {
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    font-size: 0.875rem;
+    font-family: monospace;
+    overflow: auto;
+    max-height: 24rem;
+  }
+}
+
+
