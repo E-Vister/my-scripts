@@ -6,8 +6,6 @@ import {pluralize} from "@/app/utils/pluralize";
 
 function parseScript(text) {
     const characters = {};
-
-    // Шаг 1: найти блок "ДЕЙСТВУЮЩИЕ ЛИЦА:" и вытащить имена
     const castMatch = text.match(/ДЕЙСТВУЮЩИЕ ЛИЦА[:\s]*([\s\S]*?)(?:\n_|\n\s*\n)/);
     const characterNames = [];
 
