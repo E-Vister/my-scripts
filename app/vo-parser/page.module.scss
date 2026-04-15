@@ -1,0 +1,130 @@
+.page {
+  min-height: 100vh;
+  background: #030712;
+  color: #f3f4f6;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 56rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.textarea {
+  width: 100%;
+  height: 16rem;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+  color: #f3f4f6;
+  resize: none;
+
+  &:focus {
+    outline: none;
+    border-color: #6b7280;
+  }
+}
+
+.button {
+  background: linear-gradient(to right, #0c3698 0%, #6d28d9 51%, #0c3698 100%);
+  background-size: 200% auto;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-position 1s ease;
+
+  &:hover {
+    background-position: right center;
+  }
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center
+}
+
+.rowTitle {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rowLink {
+  color: #60a5fa;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.input {
+  width: 100%;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #f3f4f6;
+
+  &:focus {
+    outline: none;
+    border-color: #6b7280;
+  }
+}
+
+.error {
+  font-size: 0.875rem;
+  color: #f87171;
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  background: linear-gradient(to right, #0c3698, #6d28d9);
+  color: #f3f4f6;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
