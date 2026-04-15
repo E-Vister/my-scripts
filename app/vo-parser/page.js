@@ -89,33 +89,19 @@ function parseRuVoiceTable(html) {
     return results;
 }
 
-function parseEnglishName(html) {
+function parseEnglishName(html, pageName) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    const span = doc.querySelector('#На_других_языках');
-    const heading = span?.closest('h2, h3');
+    for (const table of doc.querySelectorAll('table')) {
+        const ruSpan = table.querySelector('span[lang="ru"]');
+        if (!ruSpan || ruSpan.textContent.trim() !== pageName) continue;
 
-    let table = null;
-    if (heading) {
-        let el = heading.nextElementSibling;
-        while (el) {
-            if (el.tagName === 'TABLE') { table = el; break; }
-            if (/^H[23]$/.test(el.tagName)) break;
-            el = el.nextElementSibling;
-        }
-    }
-
-    if (!table) {
-        table = doc.querySelector('table.article-table');
-    }
-
-    if (!table) return null;
-
-    for (const row of table.querySelectorAll('tr')) {
-        const cells = row.querySelectorAll('td');
-        if (cells.length >= 2 && cells[0].textContent.trim().includes('Английский')) {
-            return cells[1].textContent.trim();
+        for (const row of table.querySelectorAll('tr')) {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 2 && cells[0].textContent.trim().includes('Английский')) {
+                return cells[1].textContent.trim();
+            }
         }
     }
 
@@ -140,7 +126,8 @@ export default function VoParser() {
             const baseData = await baseRes.json();
             if (baseData.error) throw new Error(baseData.error);
 
-            const enName = parseEnglishName(baseData.html);
+            const pageName = decodeURIComponent(url.split('/wiki/')[1]).replace(/_/g, ' ');
+            const enName = parseEnglishName(baseData.html, pageName);
             if (!enName) throw new Error("Не удалось найти английское название");
 
             const enUrl = `https://honkai-star-rail.fandom.com/wiki/${encodeURIComponent(enName)}/Voice-Overs`;
