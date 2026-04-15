@@ -133,7 +133,9 @@ export default function VoParser() {
         setError({ en: null, ru: null });
 
         try {
-            const url = `https://honkai-star-rail.fandom.com/ru/wiki/${capitalize(characterName.trim())}`;
+            const url = characterName.trim().startsWith("http")
+                ? characterName.trim()
+                : `https://honkai-star-rail.fandom.com/ru/wiki/${capitalize(characterName.trim())}`;
             const baseRes = await fetch(`/api/fetch-page?url=${encodeURIComponent(url)}`);
             const baseData = await baseRes.json();
             if (baseData.error) throw new Error(baseData.error);
@@ -175,7 +177,7 @@ export default function VoParser() {
                 <div className={styles.inputRow}>
                     <input
                         className={styles.input}
-                        placeholder="Введи имя персонажа на русском языке..."
+                        placeholder="Имя персонажа или ссылка на wiki..."
                         value={characterName}
                         onChange={(e) => setCharacterName(e.target.value)}
                     />
