@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import styles from "./page.module.scss";
+import {capitalize} from "@/app/utils/capitalize";
 
 function parseVoiceTable(html) {
     const parser = new DOMParser();
@@ -122,7 +123,7 @@ function parseEnglishName(html) {
 }
 
 export default function VoParser() {
-    const [url, setUrl] = useState("")
+    const [characterName, setCharacterName] = useState("")
     const [loading, setLoading] = useState({ en: false, ru: false });
     const [results, setResults] = useState({ en: [], ru: [] });
     const [error, setError] = useState({ en: null, ru: null });
@@ -132,6 +133,7 @@ export default function VoParser() {
         setError({ en: null, ru: null });
 
         try {
+            const url = `https://honkai-star-rail.fandom.com/ru/wiki/${capitalize(characterName.trim())}`;
             const baseRes = await fetch(`/api/fetch-page?url=${encodeURIComponent(url)}`);
             const baseData = await baseRes.json();
             if (baseData.error) throw new Error(baseData.error);
@@ -173,9 +175,9 @@ export default function VoParser() {
                 <div className={styles.inputRow}>
                     <input
                         className={styles.input}
-                        placeholder="Вставь ссылку на RU страницу wiki..."
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
+                        placeholder="Введи имя персонажа на русском языке..."
+                        value={characterName}
+                        onChange={(e) => setCharacterName(e.target.value)}
                     />
                     <button className={styles.button} onClick={handleParse}>
                         {loading.en || loading.ru ? "Загрузка..." : "Разобрать"}
