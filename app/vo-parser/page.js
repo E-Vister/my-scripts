@@ -278,6 +278,8 @@ export default function VoParser() {
                                         >
                                             {item.text}
                                         </span>
+                                    </td>
+                                    <td className={styles.tdDownload}>
                                         <a
                                             className={styles.downloadButton}
                                             href={`/api/download?url=${encodeURIComponent(item.url)}`}
@@ -288,9 +290,8 @@ export default function VoParser() {
                                             </svg>
                                         </a>
                                     </td>
-                                    <td className={styles.tdRu}>
-                                        {results.ru[i]?.text}
-                                    </td>
+                                    <td className={styles.tdRuTitle}>{results.ru[i]?.title}</td>
+                                    <td className={styles.tdRu}>{results.ru[i]?.text}</td>
                                 </tr>
                             ))}
                         </tbody>

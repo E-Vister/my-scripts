@@ -30,18 +30,30 @@
 .tdTitle {
   padding: 0.5rem 0.75rem 0.5rem 0;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
   color: #9ca3af;
   vertical-align: top;
-  width: 1%;
+  width: 18%;
 }
 
 .tdEn {
   padding: 0.5rem 1rem 0.5rem 0;
   vertical-align: top;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+}
+
+.tdDownload {
+  padding: 0.5rem 1rem 0.5rem 0;
+  vertical-align: top;
+  width: 1%;
+}
+
+.tdRuTitle {
+  padding: 0.5rem 1rem 0.5rem 0;
+  font-weight: 700;
+  white-space: normal;
+  color: #9ca3af;
+  vertical-align: top;
+  width: 20%;
 }
 
 .tdRu {
