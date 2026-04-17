@@ -270,7 +270,12 @@ export default function VoParser() {
                         <tbody>
                             {results.en.map((item, i) => (
                                 <tr key={i} className={styles.tableRow}>
-                                    <td className={styles.tdTitle}>{item.title}</td>
+                                    <td className={styles.tdTitle}>
+                                        {item.title}
+                                        {results.ru[i]?.title && (
+                                            <span className={styles.ruTitleMobile}> · {results.ru[i].title}</span>
+                                        )}
+                                    </td>
                                     <td className={styles.tdEn}>
                                         <span
                                             className={styles.rowLink}

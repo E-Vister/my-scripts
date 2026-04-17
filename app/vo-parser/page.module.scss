@@ -62,6 +62,10 @@
   color: #d1d5db;
 }
 
+.ruTitleMobile {
+  display: none;
+}
+
 .spinnerRow {
   display: flex;
   justify-content: center;
@@ -241,4 +245,60 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .table, .tbody, .tableRow, .tdTitle, .tdEn, .tdDownload, .tdRuTitle, .tdRu {
+    display: block;
+  }
+
+  .tableRow {
+    padding: 0.75rem 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "title title"
+      "en    download"
+      "ru    ru";
+    gap: 0.25rem 0.5rem;
+  }
+
+  .tdTitle {
+    grid-area: title;
+    width: 89%;
+    white-space: normal;
+    padding: 0;
+    font-size: 0.75rem;
+  }
+
+  .tdEn {
+    grid-area: en;
+    padding: 0;
+  }
+
+  .tdDownload {
+    grid-area: download;
+    width: auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .tdRuTitle {
+    display: none;
+  }
+
+  .ruTitleMobile {
+    display: inline;
+  }
+
+  .tdRu {
+    grid-area: ru;
+    padding: 0;
+    font-size: 0.8125rem;
+  }
 }
