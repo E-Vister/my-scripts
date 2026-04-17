@@ -1,8 +1,7 @@
 "use client";
 
-import {useState} from "react";
+import {useState, useEffect, useRef} from "react";
 import styles from "./page.module.scss";
-import {capitalize} from "@/app/utils/capitalize";
 
 function parseVoiceTable(html) {
     const parser = new DOMParser();
@@ -95,12 +94,17 @@ function parseEnglishName(html, pageName) {
 
     for (const table of doc.querySelectorAll('table')) {
         const ruSpan = table.querySelector('span[lang="ru"]');
-        if (!ruSpan || ruSpan.textContent.trim() !== pageName) continue;
+        if (!ruSpan) continue;
+        const ruText = ruSpan.textContent.trim();
+        if (ruText !== pageName && !pageName.startsWith(ruText)) continue;
 
         for (const row of table.querySelectorAll('tr')) {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 2 && cells[0].textContent.trim().includes('Английский')) {
-                return cells[1].textContent.trim();
+                for (const node of cells[1].childNodes) {
+                    const text = node.textContent.trim();
+                    if (text) return text;
+                }
             }
         }
     }
@@ -108,20 +112,72 @@ function parseEnglishName(html, pageName) {
     return null;
 }
 
+function parseCharacterList(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const span = doc.querySelector('#Играбельные_персонажи');
+    if (!span) return [];
+
+    const h2 = span.closest('h2');
+    let table = null;
+    let el = h2.nextElementSibling;
+    while (el) {
+        if (el.tagName === 'TABLE') { table = el; break; }
+        if (el.tagName === 'H2') break;
+        el = el.nextElementSibling;
+    }
+
+    if (!table) return [];
+
+    const results = [];
+    for (const row of table.querySelectorAll('tr')) {
+        const firstCell = row.querySelector('td');
+        if (!firstCell) continue;
+        const link = Array.from(firstCell.querySelectorAll('a[title]')).find(a => a.textContent.trim());
+        if (!link) continue;
+        const name = link.textContent.trim();
+        const href = link.getAttribute('href');
+        if (name && href) {
+            results.push({ name, url: 'https://honkai-star-rail.fandom.com' + href });
+        }
+    }
+    return results;
+}
+
+
 export default function VoParser() {
     const [characterName, setCharacterName] = useState("")
     const [loading, setLoading] = useState({ en: false, ru: false });
     const [results, setResults] = useState({ en: [], ru: [] });
     const [error, setError] = useState({ en: null, ru: null });
+    const [characters, setCharacters] = useState([]);
+    const [loadingCharacters, setLoadingCharacters] = useState(true);
+    const [selectedUrl, setSelectedUrl] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        const listUrl = 'https://honkai-star-rail.fandom.com/ru/wiki/%D0%9F%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%B6%D0%B8/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA';
+        fetch(`/api/fetch-page?url=${encodeURIComponent(listUrl)}`)
+            .then(r => r.json())
+            .then(data => {
+                console.log('data', data);
+                if (!data.error) {
+                    const chars = parseCharacterList(data.html);
+                    setCharacters(chars);
+                }
+                setLoadingCharacters(false);
+            })
+    }, []);
 
     async function handleParse() {
+        if (!selectedUrl) return;
         setLoading({ en: true, ru: true });
         setError({ en: null, ru: null });
 
         try {
-            const url = characterName.trim().startsWith("http")
-                ? characterName.trim()
-                : `https://honkai-star-rail.fandom.com/ru/wiki/${capitalize(characterName.trim())}`;
+            const url = selectedUrl;
             const baseRes = await fetch(`/api/fetch-page?url=${encodeURIComponent(url)}`);
             const baseData = await baseRes.json();
             if (baseData.error) throw new Error(baseData.error);
@@ -162,12 +218,39 @@ export default function VoParser() {
             <div className={styles.container}>
                 <h1 className={styles.title}>Парсер реплик</h1>
                 <div className={styles.inputRow}>
-                    <input
-                        className={styles.input}
-                        placeholder="Имя персонажа или ссылка на wiki..."
-                        value={characterName}
-                        onChange={(e) => setCharacterName(e.target.value)}
-                    />
+                    <div className={styles.inputWrapper}>
+                        <input
+                            ref={inputRef}
+                            className={styles.input}
+                            placeholder="Выбери персонажа..."
+                            value={characterName}
+                            onChange={(e) => { setCharacterName(e.target.value); setSelectedUrl(null); }}
+                            onFocus={() => setShowDropdown(true)}
+                            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                        />
+                        {showDropdown && (
+                            <div className={styles.dropdown}>
+                                {loadingCharacters
+                                    ? <div className={styles.dropdownLoading}>Загрузка...</div>
+                                    : characters
+                                        .filter(c => c.name.toLowerCase().includes(characterName.toLowerCase()))
+                                        .map((c, i) => (
+                                            <div
+                                                key={i}
+                                                className={styles.dropdownItem}
+                                                onMouseDown={() => {
+                                                    setCharacterName(c.name);
+                                                    setSelectedUrl(c.url);
+                                                    setShowDropdown(false);
+                                                }}
+                                            >
+                                                {c.name}
+                                            </div>
+                                        ))
+                                }
+                            </div>
+                        )}
+                    </div>
                     <button className={styles.button} onClick={handleParse}>
                         {loading.en || loading.ru ? "Загрузка..." : "Разобрать"}
                     </button>
@@ -176,41 +259,43 @@ export default function VoParser() {
                 {(error.en || error.ru) && (
                     <span className={styles.error}>{error.en || error.ru}</span>
                 )}
-                <div className={styles.columns}>
-                    <div className={styles.column}>
-                        {!loading.en && !loading.ru && results.en.map((item, i) => (
-                            <div key={i} className={styles.row}>
-                                <span className={styles.rowTitle}>{item.title} - </span>
-                                <span
-                                    className={styles.rowLink}
-                                    onClick={() => new Audio(item.url).play()}
-                                >
-                                    {item.text}
-                                </span>
-                                <a
-                                    className={styles.downloadButton}
-                                    href={`/api/download?url=${encodeURIComponent(item.url)}`}
-                                    download
-                                >
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 4a1 1 0 0 1 1 1v10.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-5-5a1 1 0 0 1 1.414-1.414L11 15.586V5a1 1 0 0 1 1-1z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        ))}
-                    </div>
-                    <div className={`${styles.spinnerCol} ${loading.en || loading.ru ? styles.visible : ""}`}>
+                {(loading.en || loading.ru) && (
+                    <div className={styles.spinnerRow}>
                         <div className={styles.spinner} />
                     </div>
-                    <div className={styles.column}>
-                        {!loading.en && !loading.ru && results.ru.map((item, i) => (
-                            <div key={i} className={styles.row}>
-                                <span className={styles.rowTitle}>{item.title} - </span>
-                                <span className={styles.rowLink}>{item.text}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                )}
+
+                {!loading.en && !loading.ru && results.en.length > 0 && (
+                    <table className={styles.table}>
+                        <tbody>
+                            {results.en.map((item, i) => (
+                                <tr key={i} className={styles.tableRow}>
+                                    <td className={styles.tdTitle}>{item.title}</td>
+                                    <td className={styles.tdEn}>
+                                        <span
+                                            className={styles.rowLink}
+                                            onClick={() => new Audio(`/api/download?url=${encodeURIComponent(item.url)}`).play()}
+                                        >
+                                            {item.text}
+                                        </span>
+                                        <a
+                                            className={styles.downloadButton}
+                                            href={`/api/download?url=${encodeURIComponent(item.url)}`}
+                                            download
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 4a1 1 0 0 1 1 1v10.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5a1 1 0 0 1-1.414 0l-5-5a1 1 0 0 1 1.414-1.414L11 15.586V5a1 1 0 0 1 1-1z"/>
+                                            </svg>
+                                        </a>
+                                    </td>
+                                    <td className={styles.tdRu}>
+                                        {results.ru[i]?.text}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </main>
     );
